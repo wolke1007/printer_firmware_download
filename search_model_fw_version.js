@@ -116,68 +116,72 @@ function fill_info_into_table(filtered_info){
 
 // 選擇公司要做的事
 company_select.addEventListener('change', (event) => {
-  // 先過濾公司名字
-  console.log(company_select.value);
-  filtered_company_model = company_model.filter(item => {
-    return company_select.value == item.company;
-  });
+    // 先過濾公司名字
+    console.log(company_select.value);
+    filtered_company_model = company_model.filter(item => {
+        return company_select.value == item.company;
+    });
 
-  fill_info_into_table(filtered_company_model);
+    fill_info_into_table(filtered_company_model);
 
-  // 將機型選項更新
-  model_select.innerHTML = ''
-  let union = []
-  filtered_company_model.forEach(printer => {
-      union.push(printer.model)
-  })
-  union_model = new Set(union)
+    // 將版本歸零
+    version_select.innerHTML = ''
 
-  union_model.forEach(name =>{
-      model_option = document.createElement("option")
-      model_option.text = name
-      model_select.appendChild(model_option)
-  })
+    // 將機型選項更新
+    model_select.innerHTML = ''
+    let union = []
+    filtered_company_model.forEach(printer => {
+        union.push(printer.model)
+    })
+    union_model = new Set(union)
 
-  // 只顯示當前機型內容
-  filtered_model_version = filtered_company_model.filter(item => {
-    return model_select.value == item.model;
-  });
+    union_model.forEach(name =>{
+        model_option = document.createElement("option")
+        model_option.text = name
+        model_select.appendChild(model_option)
+    })
 
-  fill_info_into_table(filtered_model_version);
+    // 只顯示當前機型內容
+    filtered_model_version = filtered_company_model.filter(item => {
+        return model_select.value == item.model;
+    });
+
+    fill_info_into_table(filtered_model_version);
 });
 
 
 // 選擇機型要做的事
 model_select.addEventListener('change', (event) => {
 
-  filtered_model_version = filtered_company_model.filter(item => {
-    return model_select.value == item.model;
-  });
+    filtered_model_version = filtered_company_model.filter(item => {
+        return model_select.value == item.model;
+    });
 
-  fill_info_into_table(filtered_model_version);
+    fill_info_into_table(filtered_model_version);
 
-  // 將版本選項更新
-  version_select.innerHTML = ''
-  let union = []
-  filtered_model_version.forEach(printer => {
-      union.push(printer.version)
-  })
-  union_model = new Set(union)
+    // 將版本選項更新
+    version_select.innerHTML = ''
+    let union = []
+    filtered_model_version.forEach(printer => {
+        union.push(printer.version)
+    })
+    union_model = new Set(union)
 
-  union_model.forEach(name =>{
-      version_option = document.createElement("option")
-      version_option.text = name
-      version_select.appendChild(version_option)
-  })
+    union_model.forEach(name =>{
+        version_option = document.createElement("option")
+        version_option.text = name
+        version_select.appendChild(version_option)
+    })
 
 });
 
+
 // 選擇版本要做的事
 version_select.addEventListener('change', (event) => {
-  console.log(version_select.value)
+    console.log(version_select.value)
     filtered_version = filtered_model_version.filter(item => {
-    return version_select.value == item.version;
-  });
+        return version_select.value == item.version;
+    });
 
   fill_info_into_table(filtered_version);
 
@@ -202,7 +206,7 @@ union_company.forEach(name =>{
  * add a link to the debug view (for demo purposes only)
  */
 if (/(iPhone|iPad|iPod)/gi.test(navigator.userAgent) && window.location.pathname.indexOf('/full') > -1) {
-  var p = document.createElement('p');
-  p.innerHTML = '<a target="_blank" href="https://s.codepen.io/dbushell/debug/wGaamR"><b>Click here to view this demo properly on iOS devices (remove the top frame)</b></a>';
-  document.body.insertBefore(p, document.body.querySelector('h1'));
+    var p = document.createElement('p');
+    p.innerHTML = '<a target="_blank" href="https://s.codepen.io/dbushell/debug/wGaamR"><b>Click here to view this demo properly on iOS devices (remove the top frame)</b></a>';
+    document.body.insertBefore(p, document.body.querySelector('h1'));
 }

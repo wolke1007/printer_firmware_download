@@ -52,7 +52,6 @@ var raw_model_version_url = [
 var model_version_url = {}
 raw_model_version_url.forEach(item => {
     if (item.model in model_version_url){
-//        console.log('item model already in model_version_url')  // debug
         model_version_url[item.model].push({'version': item.version, 'url': item.url})
     } else {
         model_version_url[item.model] = [{'version': item.version, 'url': item.url}]
@@ -80,12 +79,10 @@ company_model.forEach(company_printer => {
 var company_select = document.getElementById("company_select")
 var model_select = document.getElementById("model_select")
 var version_select = document.getElementById("version_select")
-var data_body = document.getElementById("data_body")
-var filtered_company_model
-var filtered_model_version
-var filtered_version
+var filtered_data
 
 function fill_info_into_table(filtered_info){
+    let data_body = document.getElementById("data_body")
     data_body.innerHTML = ''
     filtered_info.forEach(printer => {
         let tr = document.createElement("tr")
@@ -114,92 +111,108 @@ function fill_info_into_table(filtered_info){
     })
 }
 
+function fill_into_option(select_element, union_data){
+    union_data.forEach(name =>{
+        option_element = document.createElement("option")
+        option_element.text = name
+        select_element.appendChild(option_element)
+    });
+}
+
+function get_union_data_by(filtered_data, data_type){
+    let union_data = new Set()
+    filtered_data.forEach(printer => {
+        switch(data_type) {
+            case 'company':
+                union_data.add(printer.company)
+                break;
+            case 'model':
+                union_data.add(printer.model)
+                break;
+            case 'version':
+                union_data.add(printer.version)
+                break;
+        }
+    })
+    return union_data
+}
+
+
 // 選擇公司要做的事
 company_select.addEventListener('change', (event) => {
-    // 先過濾公司名字
-    console.log(company_select.value);
-    filtered_company_model = company_model.filter(item => {
+    // 依選擇的公司名字過濾公司
+    filtered_data = company_model.filter(item => {
         return company_select.value == item.company;
     });
 
-    fill_info_into_table(filtered_company_model);
+    fill_info_into_table(filtered_data);
 
-    // 將版本歸零
+    // 將版本選項清空
     version_select.innerHTML = ''
 
-    // 將機型選項更新
+    // 將機型選項清空
     model_select.innerHTML = ''
-    let union = []
-    filtered_company_model.forEach(printer => {
-        union.push(printer.model)
-    })
-    union_model = new Set(union)
 
-    union_model.forEach(name =>{
-        model_option = document.createElement("option")
-        model_option.text = name
-        model_select.appendChild(model_option)
-    })
+    // 取得去重複的機型
+    let union_model = get_union_data_by(filtered_data, 'model')
 
-    // 只顯示當前機型內容
-    filtered_model_version = filtered_company_model.filter(item => {
+    // 更新「機型」選項
+    fill_into_option(model_select, union_model)
+
+    // 選出當前機型內容
+    let filtered_model_version = filtered_data.filter(item => {
         return model_select.value == item.model;
     });
 
+    // 依照目前選出來的機型下去搜出去重複的版本
+    let union_version_by_model = get_union_data_by(filtered_model_version, 'version')
+    
+    // 更新「版本」選項
+    fill_into_option(version_select, union_version_by_model)
+
+    // table 填入機型
     fill_info_into_table(filtered_model_version);
 });
 
 
 // 選擇機型要做的事
 model_select.addEventListener('change', (event) => {
-
-    filtered_model_version = filtered_company_model.filter(item => {
+    // 依公司名字過濾機型
+    filter_model_by_selected_company = filtered_data.filter(item => {
         return model_select.value == item.model;
     });
 
-    fill_info_into_table(filtered_model_version);
+    // table 填入機型
+    fill_info_into_table(filter_model_by_selected_company);
 
-    // 將版本選項更新
+    // 將版本選項清空
     version_select.innerHTML = ''
-    let union = []
-    filtered_model_version.forEach(printer => {
-        union.push(printer.version)
-    })
-    union_model = new Set(union)
+    
+    // 依照目前選出來的機型下去搜出去重複的版本
+    let union_version = get_union_data_by(filter_model_by_selected_company, 'version')
 
-    union_model.forEach(name =>{
-        version_option = document.createElement("option")
-        version_option.text = name
-        version_select.appendChild(version_option)
-    })
+    // 更新「版本」選項
+    fill_into_option(version_select, union_version)
 
 });
 
 
 // 選擇版本要做的事
 version_select.addEventListener('change', (event) => {
-    console.log(version_select.value)
-    filtered_version = filtered_model_version.filter(item => {
-        return version_select.value == item.version;
+    let filtered_version = filtered_data.filter(item => {
+        return model_select.value == item.model && version_select.value == item.version;
     });
 
-  fill_info_into_table(filtered_version);
+    fill_info_into_table(filtered_version);
 
 });
 
 
-// 製作選項
-let union = []
-company_model.forEach(printer => {
-    union.push(printer.company)
-})
-union_company = new Set(union)
+// 製作「公司」選項
+let union_company = get_union_data_by(company_model, 'company')
 
-union_company.forEach(name =>{
-    company_option = document.createElement("option")
-    company_option.text = name
-    company_select.appendChild(company_option)
-})
+// 更新「公司」選項
+fill_into_option(company_select, union_company)
 
 /*!
  * iOS doesn't respect the meta viewport tag inside a frame
